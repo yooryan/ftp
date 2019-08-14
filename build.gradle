@@ -1,0 +1,26 @@
+plugins {
+	id 'org.springframework.boot' version '2.1.7.RELEASE'
+	id 'java'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group = 'cn.lvji'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+	mavenLocal()
+	maven { url 'https://maven.aliyun.com/repository/public' }
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    // https://mvnrepository.com/artifact/commons-net/commons-net
+    compile group: 'commons-net', name: 'commons-net', version: '3.6'
+	compile group: 'org.projectlombok', name: 'lombok', version: '1.18.2'
+	compile "org.springframework.boot:spring-boot-starter-web"
+
+}
