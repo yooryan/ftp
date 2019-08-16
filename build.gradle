@@ -15,6 +15,12 @@ repositories {
 	mavenCentral()
 }
 
+jar {
+	manifest {
+		attributes("Implementation-Title": "Gradle")
+	}
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -22,5 +28,7 @@ dependencies {
     compile group: 'commons-net', name: 'commons-net', version: '3.6'
 	compile group: 'org.projectlombok', name: 'lombok', version: '1.18.2'
 	compile "org.springframework.boot:spring-boot-starter-web"
+	compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
+	compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
 
 }
