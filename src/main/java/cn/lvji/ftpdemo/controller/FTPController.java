@@ -1,7 +1,5 @@
 package cn.lvji.ftpdemo.controller;
 
-import cn.lvji.ftpdemo.ftp.FTPStatus;
-import cn.lvji.ftpdemo.ftp.FTPUtils;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
