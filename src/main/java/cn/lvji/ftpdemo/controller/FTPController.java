@@ -5,14 +5,21 @@ import cn.lvji.ftpdemo.ftp.FTPUtils;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartRequest;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.UUID;
 
 /**
  * @author linyunrui
@@ -54,13 +61,19 @@ public class FTPController {
     }
 
     @ApiOperation(value = "上传文件",notes = "先切换到指定上传的路径再上传")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "local",value = "文件路径名称"),
-            @ApiImplicitParam(name = "fileName",value = "文件名称"),
-    })
-    @GetMapping("/upload")
-    public FTPStatus uploadFile(String local, String fileName) throws Exception {
-       return ftpUtils.upload(local, fileName);
+    @PostMapping("/upload")
+    public FTPStatus uploadFile(HttpServletRequest request) throws Exception {
+        if (request instanceof MultipartRequest) {
+            MultipartFile file = getFileFormRequest(request);
+            String fileName = file.getOriginalFilename();
+            String prefix = fileName.substring(fileName.lastIndexOf("."));
+            File tempFile = File.createTempFile(String.valueOf(UUID.randomUUID()), prefix);
+            file.transferTo(tempFile);
+            FTPStatus upload = ftpUtils.upload(tempFile, fileName);
+            deleteFile(tempFile);
+            return upload;
+        }
+        throw new Exception("非文件上传请求");
     }
 
     @ApiOperation(value = "断开连接")
@@ -89,4 +102,36 @@ public class FTPController {
         return ftpUtils.changeToParentDirectory();
     }
 
+
+    /**
+     * 从请求（HttpServletRequest）中获取文件
+     * <p>
+     * 注意，只会获取请求中的第一个文件
+     * </p>
+     *
+     * @param request 携带文件的请求
+     * @return 文件（File)
+     */
+    private MultipartFile getFileFormRequest(HttpServletRequest request) {
+        MultipartRequest multipartRequest = (MultipartRequest) request;
+        MultiValueMap<String, MultipartFile> multiFileMap = multipartRequest.getMultiFileMap();
+        Iterator<String> fileNames = multipartRequest.getFileNames();
+        MultipartFile file = null;
+        if (fileNames.hasNext()) {
+            file = multiFileMap.getFirst(fileNames.next());
+        }
+        return file;
+    }
+
+    /**
+     * 删除文件
+     * @param files
+     */
+    private void deleteFile(File... files){
+        for (File file : files) {
+            if (file.exists()){
+                file.delete();
+            }
+        }
+    }
 }
